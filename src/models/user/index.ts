@@ -1,12 +1,13 @@
 import {Schema, model} from 'mongoose';
-import {UserSavedModel} from 'types/models/user';
+import {UserSavedModel} from './types';
 
 const userSchema = new Schema<UserSavedModel>(
   {
-    name: {type: String, required: true},
-    surname: {type: String, required: true},
+    fullName: {type: String, required: true},
+    socketId: {type: Schema.Types.Mixed, default: null},
     email: {type: String, required: true, unique: true},
     password: {type: String, required: true},
+    chats: [{type: Schema.Types.ObjectId, ref: 'Chat', default: []}],
   },
 
   {timestamps: true},

@@ -1,8 +1,10 @@
+import {Database} from './Database';
 import {Tcp} from './Tcp';
 
 export class App {
   private static instance: App;
 
+  private database = new Database();
   private tcp = new Tcp();
 
   constructor() {
@@ -11,8 +13,13 @@ export class App {
   }
 
   async init() {
-      console.log('App started!');
-      
-      await this.tcp.init();
+    console.log('App started!');
+
+    await this.database.init();
+    await this.tcp.init();
+  }
+
+  getIo() {
+    return this.tcp.getIo();
   }
 }

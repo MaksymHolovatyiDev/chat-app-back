@@ -1,6 +1,7 @@
 export interface UserSavedModel {
-  name: string;
-  surname: string;
+  fullName: string;
+  socketId: string | null;
   email: string;
   password: string;
+  chats: string[];
 }

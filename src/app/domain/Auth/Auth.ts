@@ -1,4 +1,4 @@
-import {Post, JsonController, HttpCode, Body, Req} from 'routing-controllers';
+import {Post, JsonController, HttpCode, Body} from 'routing-controllers';
 import AuthServices from './AuthServices';
 import {SignUpBody} from './AuthTypes';
 
@@ -8,15 +8,12 @@ export default class Auth {
 
   @HttpCode(201)
   @Post('/SignUp')
-  async SignUp(@Req() Req: unknown, @Body() body: SignUpBody) {
-    return this.service.createNewUser(Req, body);
+  async SignUp(@Body() body: SignUpBody) {
+    return this.service.createNewUser(body);
   }
 
   @Post('/SignIn')
-  async SignIn(
-    @Req() Req: unknown,
-    @Body() body: Pick<SignUpBody, 'email' | 'password'>,
-  ) {
-    return this.service.UserSignIn(Req, body);
+  async SignIn(@Body() body: Pick<SignUpBody, 'email' | 'password'>) {
+    return this.service.UserSignIn(body);
   }
 }

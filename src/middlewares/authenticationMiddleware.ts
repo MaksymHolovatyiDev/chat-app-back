@@ -15,6 +15,7 @@ export default function authenticationMiddleware() {
   {
     async use(request: any, _: any, next: any): Promise<any> {
       const token = request.headers['authorization'];
+
       const [bearer, accessToken] = token.split(' ');
 
       if (!token || bearer != 'Bearer' || !accessToken) {
@@ -32,7 +33,7 @@ export default function authenticationMiddleware() {
           throw new Error('User not found!');
         }
 
-        request.userTokenId = data?.id;
+        request.userId = data?.id;
 
         next();
       } catch (e) {
