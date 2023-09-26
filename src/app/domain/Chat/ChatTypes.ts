@@ -8,3 +8,12 @@ export interface ChatCreateMessageBody {
   to: string;
   message: string;
 }
+
+export interface CreateNewChatBody {
+  chatUserId: string;
+}
+
+export interface findByMessage {
+  text: string;
+  chatUserId: string;
+}
