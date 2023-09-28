@@ -12,8 +12,3 @@ export interface ChatCreateMessageBody {
 export interface CreateNewChatBody {
   chatUserId: string;
 }
-
-export interface findByMessage {
-  text: string;
-  chatUserId: string;
-}

@@ -1,12 +1,7 @@
 import {Chat} from 'models/chat';
 import {Messages} from 'models/messages';
 import {BadRequestError, ForbiddenError} from 'routing-controllers';
-import {
-  ChatCreateMessageBody,
-  ChatReq,
-  CreateNewChatBody,
-  findByMessage,
-} from './ChatTypes';
+import {ChatCreateMessageBody, ChatReq, CreateNewChatBody} from './ChatTypes';
 import {app} from 'index';
 import {User} from 'models/user';
 
@@ -21,7 +16,7 @@ export default class ChatServices {
         options: {sort: {updatedAt: -1}, limit: 1},
         select: {
           _id: {$toString: '$_id'},
-          user: {$toString: '$user'},
+          owner: {$toString: '$owner'},
           text: 1,
           createdAt: 1,
         },
@@ -51,9 +46,11 @@ export default class ChatServices {
         path: 'messages',
         select: {
           _id: {$toString: '$_id'},
-          user: {$toString: '$user'},
+          owner: {$toString: '$owner'},
           text: 1,
           createdAt: 1,
+          delivered: 1,
+          read: 1,
         },
       })
       .populate({
@@ -77,22 +74,15 @@ export default class ChatServices {
   async createNewChat(req: ChatReq, body: CreateNewChatBody) {
     const {chatUserId} = body;
 
-    const user = await User.findById(req.userId);
+    const chat = await Chat.findOne({users: {$all: [req.userId, chatUserId]}});
 
-    if (user?.chats.includes(chatUserId)) throw new BadRequestError();
+    if (chat) throw new BadRequestError();
 
     const newChat = await Chat.create({
       users: [chatUserId, req.userId],
     });
 
-    await User.findByIdAndUpdate(req.userId, {
-      $push: {chats: chatUserId},
-    });
-    await User.findByIdAndUpdate(chatUserId, {
-      $push: {chats: req.userId},
-    });
-
-    return {_id: newChat._id};
+    return {_id: newChat._id.toString()};
   }
 
   async sendChatMessage(req: ChatReq, body: ChatCreateMessageBody) {
@@ -103,42 +93,61 @@ export default class ChatServices {
 
     if (!to || !message || !user) throw new BadRequestError();
 
-    const {_id} = await Messages.create({
+    const createdMessage = new Messages({
       text: message,
-      users: [req.userId, to],
+      chatUsers: [req.userId, to],
+      owner: req.userId,
+      delivered: true,
     });
 
     const chat = await Chat.findOneAndUpdate(
       {users: {$all: [req.userId, user._id]}},
       {
-        $push: {messages: _id},
+        $push: {messages: createdMessage._id},
       },
     ).select('_id');
 
     if (!chat) throw new BadRequestError();
 
+    createdMessage.chatId = chat._id;
+    createdMessage.save();
+
     if (user?.socketId)
       io.to(user?.socketId).emit('messageResponse', {
-        _id,
+        _id: createdMessage._id,
         text: message,
-        user: req.userId,
+        owner: req.userId,
       });
 
     io.to(mainUser?.socketId).emit('messageResponse', {
-      _id,
+      _id: createdMessage._id,
       text: message,
-      user: req.userId,
+      owner: req.userId,
     });
 
     return chat;
   }
 
-  async findByMessage(req: ChatReq, body: findByMessage) {
-    const {text, chatUserId} = body;
-
+  async findByMessage(req: ChatReq, text: string) {
     return await Messages.find({
       text: {$regex: text},
-      users: {$all: [req.userId, chatUserId]},
-    });
+      chatUsers: {$in: [req.userId]},
+    })
+      .lean()
+      .select({
+        _id: {$toString: '$_id'},
+        chatId: {$toString: '$chatId'},
+        text: 1,
+        createdAt: 1,
+      })
+      .populate({
+        path: 'owner',
+        select: {
+          _id: {$toString: '$_id'},
+          fullName: 1,
+          socketId: 1,
+          updatedAt: 1,
+        },
+      });
   }
 }

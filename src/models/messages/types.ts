@@ -2,5 +2,9 @@ import {Types} from 'mongoose';
 
 export interface MessagesSavedModel {
   text: string;
-  users: Types.ObjectId[];
+  chatUsers: Types.ObjectId[];
+  owner: Types.ObjectId;
+  chatId: Types.ObjectId;
+  delivered: boolean;
+  read: boolean;
 }

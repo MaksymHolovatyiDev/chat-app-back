@@ -7,7 +7,6 @@ const userSchema = new Schema<UserSavedModel>(
     socketId: {type: Schema.Types.Mixed, default: null},
     email: {type: String, required: true, unique: true},
     password: {type: String, required: true},
-    chats: [{type: Schema.Types.ObjectId, ref: 'User', default: []}],
   },
 
   {timestamps: true},

@@ -9,7 +9,7 @@ import {
   Param,
 } from 'routing-controllers';
 import ChatServices from './ChatService';
-import {ChatCreateMessageBody, ChatReq, CreateNewChatBody, findByMessage} from './ChatTypes';
+import {ChatCreateMessageBody, ChatReq, CreateNewChatBody} from './ChatTypes';
 
 @JsonController('/Chat')
 export default class Chat {
@@ -39,9 +39,9 @@ export default class Chat {
     return this.service.sendChatMessage(req, body);
   }
 
-  @Post('/message')
+  @Get('/message/:text')
   @UseBefore(authenticationMiddleware())
-  async findByMessage(@Req() req: ChatReq, @Body() body: findByMessage) {
-    return this.service.findByMessage(req, body);
+  async findByMessage(@Req() req: ChatReq, @Param('text') text: string) {
+    return this.service.findByMessage(req, text);
   }
 }
