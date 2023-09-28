@@ -22,7 +22,8 @@
     "password-validator": "^5.3.0",
     "reflect-metadata": "^0.1.13",
     "routing-controllers": "^0.10.4",
-    "socket.io": "^4.7.2"
+    "socket.io": "^4.7.2",
+    "tsc-alias": "^1.8.8"
   },
   "devDependencies": {
     "@types/express": "^4.17.17",
