@@ -2,7 +2,7 @@ import {User} from 'models/user';
 import {Server} from 'socket.io';
 import {DefaultEventsMap} from 'socket.io/dist/typed-events';
 
-export default class Sockets {
+export class Sockets {
   private static instance: Sockets;
 
   constructor() {

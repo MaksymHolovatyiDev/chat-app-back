@@ -4,7 +4,7 @@ import {useExpressServer} from 'routing-controllers';
 import {createServer} from 'http';
 import {Server} from 'socket.io';
 import {controllers} from 'app/domain';
-import Sockets from 'app/Sockets/Sockets';
+import {Sockets} from 'app/Sockets/Sockets';
 
 const {PORT} = process.env;
 
