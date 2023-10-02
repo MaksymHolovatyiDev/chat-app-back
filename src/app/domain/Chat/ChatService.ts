@@ -66,6 +66,7 @@ export default class ChatServices {
             createdAt: 1,
             delivered: 1,
             read: 1,
+            reply: 1,
           },
         })
         .populate({
@@ -103,6 +104,7 @@ export default class ChatServices {
             createdAt: 1,
             delivered: 1,
             read: 1,
+            reply: 1,
           },
         })
         .populate({
@@ -141,7 +143,7 @@ export default class ChatServices {
   }
 
   async sendChatMessage(req: ChatReq, body: ChatCreateMessageBody) {
-    const {message, to} = body;
+    const {message, to, reply} = body;
     const user = await User.findById(to);
     const mainUser = await User.findById(req.userId);
     const io = app.getIo();
@@ -154,6 +156,8 @@ export default class ChatServices {
       owner: req.userId,
       delivered: true,
     });
+
+    if (reply.length) createdMessage.reply = reply;
 
     const chat = await Chat.findOneAndUpdate(
       {users: {$all: [req.userId, user._id]}},
@@ -176,6 +180,7 @@ export default class ChatServices {
         text: message,
         owner: req.userId,
         delivered: true,
+        reply: createdMessage.reply,
       });
     }
 
@@ -185,6 +190,7 @@ export default class ChatServices {
       text: message,
       owner: req.userId,
       delivered: true,
+      reply: createdMessage.reply,
     });
 
     return chat;

@@ -7,4 +7,5 @@ export interface MessagesSavedModel {
   chatId: Types.ObjectId;
   delivered: boolean;
   read: boolean;
+  reply: [Types.ObjectId, string];
 }

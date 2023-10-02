@@ -7,6 +7,7 @@ export interface ChatReq {
 export interface ChatCreateMessageBody {
   to: string;
   message: string;
+  reply: [Types.ObjectId, string] | [];
 }
 
 export interface CreateNewChatBody {

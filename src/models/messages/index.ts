@@ -9,6 +9,7 @@ const messagesSchema = new Schema<MessagesSavedModel>(
     chatId: {type: Schema.Types.ObjectId, ref: 'Chat', required: true},
     delivered: {type: Boolean, require: true, default: false},
     read: {type: Boolean, require: true, default: false},
+    reply: [{type: String}],
   },
 
   {timestamps: true},
