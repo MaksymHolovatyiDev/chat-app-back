@@ -20,6 +20,6 @@ export class App {
   }
 
   getIo() {
-    return this.tcp.getIo();
+    return this.tcp.io;
   }
 }

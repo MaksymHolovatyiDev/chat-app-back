@@ -49,8 +49,4 @@ export class Tcp {
       return resolve(true);
     });
   }
-
-  getIo() {
-    return this.io;
-  }
 }

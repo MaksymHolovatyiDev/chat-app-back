@@ -3,6 +3,7 @@ import {MessageReq, UpdateMessageBody} from './MessageTypes';
 import {ForbiddenError} from 'routing-controllers';
 import {app} from 'index';
 import {User} from 'models/user';
+import {ImageUtils} from 'helpers';
 
 export default class MessageServices {
   async updateMessage(req: MessageReq, body: UpdateMessageBody) {
@@ -45,5 +46,9 @@ export default class MessageServices {
     if (user?.socketId) io.to(user?.socketId).emit('read');
 
     if (mainUser?.socketId) io.to(mainUser?.socketId).emit('read');
+  }
+
+  async getMessageImage(id: string) {
+    return await ImageUtils.getImage(id);
   }
 }

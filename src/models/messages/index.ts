@@ -10,6 +10,7 @@ const messagesSchema = new Schema<MessagesSavedModel>(
     delivered: {type: Boolean, require: true, default: false},
     read: {type: Boolean, require: true, default: false},
     reply: [{type: String}],
+    image: {type: Schema.Types.ObjectId},
   },
 
   {timestamps: true},

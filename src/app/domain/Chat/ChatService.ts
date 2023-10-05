@@ -61,7 +61,8 @@ export default class ChatServices {
           path: 'messages',
           select: {
             _id: {$toString: '$_id'},
-            owner: {$toString: '$owner'},
+            owner: {$toString: '$image'},
+            image: 1,
             text: 1,
             createdAt: 1,
             delivered: 1,
@@ -100,6 +101,7 @@ export default class ChatServices {
           select: {
             _id: {$toString: '$_id'},
             owner: {$toString: '$owner'},
+            image: {$toString: '$image'},
             text: 1,
             createdAt: 1,
             delivered: 1,
@@ -142,7 +144,7 @@ export default class ChatServices {
     return {_id: newChat._id.toString()};
   }
 
-  async sendChatMessage(req: ChatReq, body: ChatCreateMessageBody) {
+  async sendChatMessage(req: ChatReq, body: ChatCreateMessageBody, file: any) {
     const {message, to, reply} = body;
     const user = await User.findById(to);
     const mainUser = await User.findById(req.userId);
@@ -158,6 +160,7 @@ export default class ChatServices {
     });
 
     if (reply.length) createdMessage.reply = reply;
+    if (file) createdMessage.image = file.id;
 
     const chat = await Chat.findOneAndUpdate(
       {users: {$all: [req.userId, user._id]}},
@@ -181,6 +184,7 @@ export default class ChatServices {
         owner: req.userId,
         delivered: true,
         reply: createdMessage.reply,
+        image: file,
       });
     }
 
@@ -191,6 +195,7 @@ export default class ChatServices {
       owner: req.userId,
       delivered: true,
       reply: createdMessage.reply,
+      image: file,
     });
 
     return chat;

@@ -1,7 +1,6 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const {DB_HOST} = process.env;
-
 
 export class Database {
   private static instance: Database;

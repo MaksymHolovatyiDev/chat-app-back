@@ -7,6 +7,7 @@ import {
   Body,
   Param,
   Delete,
+  Get,
 } from 'routing-controllers';
 import MessageServices from './MessageService';
 import {MessageReq, UpdateMessageBody} from './MessageTypes';
@@ -26,5 +27,10 @@ export default class Message {
   @UseBefore(authenticationMiddleware())
   async getChatById(@Req() req: ChatReq, @Param('id') id: string) {
     return this.service.deleteMessage(req, id);
+  }
+
+  @Get('/image/:id')
+  async getMessageImage(@Param('id') id: string) {
+    return this.service.getMessageImage(id);
   }
 }

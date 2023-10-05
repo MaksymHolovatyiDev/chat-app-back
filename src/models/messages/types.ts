@@ -8,4 +8,5 @@ export interface MessagesSavedModel {
   delivered: boolean;
   read: boolean;
   reply: [Types.ObjectId, string];
+  image: Types.ObjectId;
 }

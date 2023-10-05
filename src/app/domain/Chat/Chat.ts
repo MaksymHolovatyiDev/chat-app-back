@@ -7,9 +7,11 @@ import {
   Body,
   Get,
   Param,
+  UploadedFile,
 } from 'routing-controllers';
 import ChatServices from './ChatService';
 import {ChatCreateMessageBody, ChatReq, CreateNewChatBody} from './ChatTypes';
+import {ImageUtils} from 'helpers';
 
 @JsonController('/Chat')
 export default class Chat {
@@ -35,8 +37,13 @@ export default class Chat {
 
   @Post()
   @UseBefore(authenticationMiddleware())
-  async Chat(@Req() req: ChatReq, @Body() body: ChatCreateMessageBody) {
-    return this.service.sendChatMessage(req, body);
+  async Chat(
+    @UploadedFile('image', {options: {storage: ImageUtils.storage()}})
+    file: Express.Multer.File,
+    @Req() req: ChatReq,
+    @Body() body: ChatCreateMessageBody,
+  ) {
+    return this.service.sendChatMessage(req, body, file);
   }
 
   @Get('/message/:text')
