@@ -27,13 +27,15 @@ export default function authenticationMiddleware() {
 
         const data: any = verify(accessToken, KEY);
 
-        const user = await User.findById(data?.id);
+        const user = await User.findById(data?.id).lean();
 
         if (!user) {
           throw new Error('User not found!');
         }
 
-        request.userId = data?.id;
+        request.userId = user._id;
+        request.socketId = user.socketId;
+
 
         next();
       } catch (e) {

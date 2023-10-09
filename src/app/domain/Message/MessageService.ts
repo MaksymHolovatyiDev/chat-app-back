@@ -2,8 +2,8 @@ import {Messages} from 'models/messages';
 import {MessageReq, UpdateMessageBody} from './MessageTypes';
 import {ForbiddenError} from 'routing-controllers';
 import {app} from 'index';
-import {User} from 'models/user';
 import {ImageUtils} from 'helpers';
+import {Chat} from 'models/chat';
 
 export default class MessageServices {
   async updateMessage(req: MessageReq, body: UpdateMessageBody) {
@@ -11,7 +11,8 @@ export default class MessageServices {
 
     const userMessage = await Messages.findById(messageId);
 
-    if (req.userId != userMessage?.owner) throw new ForbiddenError();
+    if (req.userId.toString() !== userMessage?.owner.toString())
+      throw new ForbiddenError();
 
     const message = await Messages.findByIdAndUpdate(
       messageId,
@@ -19,7 +20,14 @@ export default class MessageServices {
       {new: true},
     );
 
-    this.socketMessage(message?.chatUsers);
+    const chat = await Chat.findById(message?.chatId).populate({
+      path: 'users',
+      select: {
+        socketId: 1,
+      },
+    });
+
+    this.socketMessage(chat?.users, chat?._id);
 
     return message;
   }
@@ -29,23 +37,31 @@ export default class MessageServices {
       owner: {$toString: '$owner'},
     });
 
-    if (req.userId != userMessage?.owner) throw new ForbiddenError();
+    if (req.userId.toString() !== userMessage?.owner.toString())
+      throw new ForbiddenError();
 
     const message = await Messages.findByIdAndDelete(id);
 
-    this.socketMessage(message?.chatUsers);
+    const chat = await Chat.findByIdAndUpdate(message?.chatId, {
+      $pull: {messages: message?._id},
+    }).populate({
+      path: 'users',
+      select: {
+        socketId: 1,
+      },
+    });
+
+    this.socketMessage(chat?.users, chat?._id);
 
     return message;
   }
 
-  private async socketMessage(chatUsers: any) {
+  private async socketMessage(chatUsers: any, chat: any) {
     const io = app.getIo();
-    const user = await User.findById(chatUsers[0]);
-    const mainUser = await User.findById(chatUsers[1]);
 
-    if (user?.socketId) io.to(user?.socketId).emit('read');
-
-    if (mainUser?.socketId) io.to(mainUser?.socketId).emit('read');
+    chatUsers.forEach((el: any) => {
+      if (el?.socketId) io.to(el?.socketId).emit('read', chat);
+    });
   }
 
   async getMessageImage(id: string) {

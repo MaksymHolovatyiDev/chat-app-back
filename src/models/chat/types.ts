@@ -5,4 +5,5 @@ export interface ChatSavedModel {
   messages: Types.ObjectId[];
   unreadUser: Types.ObjectId;
   unreadMessages: number;
+  chatName: string;
 }
