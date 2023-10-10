@@ -8,6 +8,7 @@ import {
   Get,
   Param,
   UploadedFile,
+  HttpCode,
 } from 'routing-controllers';
 import ChatServices from './ChatService';
 import {ChatCreateMessageBody, ChatReq, CreateNewChatBody} from './ChatTypes';
@@ -29,6 +30,7 @@ export default class Chat {
     return this.service.getUserChatById(req, id);
   }
 
+  @HttpCode(201)
   @Post('/create')
   @UseBefore(authenticationMiddleware())
   async CreateChat(@Req() req: ChatReq, @Body() body: CreateNewChatBody) {

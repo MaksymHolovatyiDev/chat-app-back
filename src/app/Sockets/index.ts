@@ -4,6 +4,7 @@ import {DefaultEventsMap} from 'socket.io/dist/typed-events';
 
 export class Sockets {
   private static instance: Sockets;
+  public static io: any;
 
   constructor() {
     if (!Sockets.instance) Sockets.instance = this;

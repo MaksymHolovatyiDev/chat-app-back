@@ -14,7 +14,6 @@ export class Tcp {
   private routePrefix = '/api';
   private sockets = new Sockets();
   public server = express();
-  public io: any;
 
   constructor() {
     if (!Tcp.instance) Tcp.instance = this;
@@ -30,7 +29,7 @@ export class Tcp {
       },
     });
 
-    this.io = io;
+    Sockets.io = io;
 
     useExpressServer(server, {
       routePrefix,
@@ -48,5 +47,26 @@ export class Tcp {
 
       return resolve(true);
     });
+  }
+
+  getServer() {
+    const { server, routePrefix } = this;
+    const http = createServer(server);
+    const io = new Server(http, {
+      cors: {
+        origin: '*',
+      },
+    });
+
+    Sockets.io = io;
+
+    useExpressServer(server, {
+      routePrefix,
+      controllers,
+      cors: true,
+      defaultErrorHandler: true,
+    });
+
+    return server;
   }
 }

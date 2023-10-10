@@ -18,8 +18,4 @@ export class App {
     await this.database.init();
     await this.tcp.init();
   }
-
-  getIo() {
-    return this.tcp.io;
-  }
 }

@@ -2,9 +2,9 @@ import {Chat} from 'models/chat';
 import {Messages} from 'models/messages';
 import {BadRequestError, ForbiddenError} from 'routing-controllers';
 import {ChatCreateMessageBody, ChatReq, CreateNewChatBody} from './ChatTypes';
-import {app} from 'index';
 import {Types} from 'mongoose';
 import {User} from 'models/user';
+import {Sockets} from 'app/Sockets';
 
 export default class ChatServices {
   async getUserChats(req: ChatReq) {
@@ -120,7 +120,7 @@ export default class ChatServices {
       });
 
     if (unread.modifiedCount) {
-      const io = app.getIo();
+      const io = Sockets.io;
       io.to(req.socketId).emit('read', id);
 
       chat?.users.forEach((el: any) => {
@@ -137,7 +137,7 @@ export default class ChatServices {
     const {chatUsersId, chatName} = body;
     if (!chatName) {
       const chat = await Chat.findOne({
-        users: {$all: [req.userId, chatUsersId]},
+        users: {$all: [req.userId, ...chatUsersId]},
       });
 
       if (chat) throw new BadRequestError();
@@ -158,7 +158,7 @@ export default class ChatServices {
 
   async sendChatMessage(req: ChatReq, body: ChatCreateMessageBody, file: any) {
     const {message, ChatId, reply} = body;
-    const io = app.getIo();
+    const io = Sockets.io;
 
     const createdMessage = new Messages({
       text: message,
@@ -171,7 +171,7 @@ export default class ChatServices {
 
     const chat = await Chat.findByIdAndUpdate(ChatId, {
       $push: {messages: createdMessage._id},
-    });
+    }).lean();
 
     const users = await User.find({_id: {$in: chat?.users}});
 

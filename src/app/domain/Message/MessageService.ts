@@ -1,9 +1,9 @@
 import {Messages} from 'models/messages';
 import {MessageReq, UpdateMessageBody} from './MessageTypes';
 import {ForbiddenError} from 'routing-controllers';
-import {app} from 'index';
 import {ImageUtils} from 'helpers';
 import {Chat} from 'models/chat';
+import { Sockets } from 'app/Sockets';
 
 export default class MessageServices {
   async updateMessage(req: MessageReq, body: UpdateMessageBody) {
@@ -57,7 +57,7 @@ export default class MessageServices {
   }
 
   private async socketMessage(chatUsers: any, chat: any) {
-    const io = app.getIo();
+    const io = Sockets.io;
 
     chatUsers.forEach((el: any) => {
       if (el?.socketId) io.to(el?.socketId).emit('read', chat);
